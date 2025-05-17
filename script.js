@@ -185,10 +185,40 @@ document.addEventListener('DOMContentLoaded', function() {
         }, 300);
     }
 
+    function deleteCard(cardId) {
+        const cardElement = document.querySelector(`.card[data-id="${cardId}"]`);
+        if (!cardElement) return;
+
+        cardElement.classList.add('card-delete');
+
+        cards = cards.filter(card => card.id !== cardId);
+
+        setTimeout(() => {
+            cardElement.remove();
+            
+            // Show message if no cards left
+            if (cards.length === 0) {
+                const existingMessages = document.querySelectorAll('.no-cards-message');
+                existingMessages.forEach(msg => msg.remove());
+                
+                
+                const message = document.createElement('div');
+                message.className = 'no-cards-message';
+                message.textContent = 'No cards yet! Click the + button to add some.';
+                cardsGrid.insertBefore(message, addCardBtn);
+            }
+        }, 300); 
+    }
+
     function addNewCard(question, answer) {
         if (!cardsGrid || !addCardBtn) return;
         
         console.log('Adding new card:', { question, answer });
+        
+        const noCardsMessage = document.querySelector('.no-cards-message');
+        if (noCardsMessage) {
+            noCardsMessage.remove();
+        }
         
         const card = {
             id: Date.now(),
@@ -226,7 +256,6 @@ document.addEventListener('DOMContentLoaded', function() {
         
         // Add click event for card flipping
         cardDiv.addEventListener('click', (e) => {
-            // Don't flip if clicking delete button
             if (!e.target.classList.contains('delete-btn')) {
                 flipCard(cardDiv);
             }
@@ -236,37 +265,12 @@ document.addEventListener('DOMContentLoaded', function() {
         const deleteButtons = cardDiv.querySelectorAll('.delete-btn');
         deleteButtons.forEach(btn => {
             btn.addEventListener('click', (e) => {
-                e.stopPropagation(); // Prevent card flip when clicking delete
+                e.stopPropagation(); 
                 deleteCard(card.id);
             });
         });
         
         return cardDiv;
-    }
-
-    function deleteCard(cardId) {
-        // Find the card element
-        const cardElement = document.querySelector(`.card[data-id="${cardId}"]`);
-        if (!cardElement) return;
-
-        // Add deletion animation class
-        cardElement.classList.add('card-delete');
-
-        // Remove card from array
-        cards = cards.filter(card => card.id !== cardId);
-
-        // Remove element after animation
-        setTimeout(() => {
-            cardElement.remove();
-            
-            // Show message if no cards left
-            if (cards.length === 0) {
-                const message = document.createElement('div');
-                message.className = 'no-cards-message';
-                message.textContent = 'No cards yet! Click the + button to add some.';
-                cardsGrid.insertBefore(message, addCardBtn);
-            }
-        }, 300); // Match this with CSS animation duration
     }
 
     function escapeHtml(unsafe) {
@@ -287,12 +291,11 @@ document.addEventListener('DOMContentLoaded', function() {
         currentMode = mode;
         
         if (mode === 'slide' || mode === 'revision') {
-            // Implementation for slide and revision modes
             alert('Mode switching will be implemented in the next version!');
         }
     }
 
-    // Keyboard shortcuts
+    // Keyboard shortcuts yo can use these if needed or as an additional feature
     document.addEventListener('keydown', (e) => {
         if (addCardModal) {
             if (e.key === 'Escape' && addCardModal.classList.contains('active')) {
