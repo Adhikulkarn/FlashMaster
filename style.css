@@ -17,7 +17,6 @@
   --hover-bg: #FFF5F5;
 }
 
-
 .dark-theme {
   --primary-color: #BB86FC;
   --secondary-color: #9B6BF3;
@@ -32,7 +31,6 @@
   --card-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
   --hover-bg: #1F1F1F;
 }
-
 
 .dark-theme {
   background: linear-gradient(
@@ -144,16 +142,21 @@
   color: var(--text-color);
 }
 
-.dark-theme input {
+.dark-theme .modal-content input {
   background: rgba(31, 31, 31, 0.95);
-  border: 1px solid #1F1F1F;
-  color: var(--text-color);
+  border: 1px solid rgba(187, 134, 252, 0.3);
+  color: #FFFFFF;
 }
 
-.dark-theme input:focus {
+.dark-theme .modal-content input::placeholder {
+  color: rgba(255, 255, 255, 0.5);
+}
+
+.dark-theme .modal-content input:focus {
   border-color: var(--primary-color);
   background: #1F1F1F;
   box-shadow: 0 0 0 2px rgba(187, 134, 252, 0.2);
+  color: #FFFFFF;
 }
 
 .dark-theme .modal-buttons button[type="submit"] {
@@ -190,7 +193,6 @@
   color: #000000;
 }
 
-
 body.dark-theme {
   background: linear-gradient(
     135deg,
@@ -202,7 +204,6 @@ body.dark-theme {
   );
   color: var(--text-color);
 }
-
 
 .dark-theme .logo-icon {
   color: var(--primary-color);
@@ -217,7 +218,6 @@ body.dark-theme {
   text-shadow: 0 0 20px rgba(179, 136, 255, 0.3);
 }
 
-
 .dark-theme .delete-btn {
   background: rgba(255, 23, 68, 0.2);
   color: #FFFFFF;
@@ -227,7 +227,6 @@ body.dark-theme {
   background: rgba(255, 23, 68, 0.4);
   box-shadow: 0 0 15px rgba(255, 23, 68, 0.3);
 }
-
 
 @keyframes gradient {
   0% { background-position: 0% 50%; }
@@ -240,7 +239,6 @@ body.dark-theme {
   50% { transform: translateY(-20px); }
   100% { transform: translateY(0px); }
 }
-
 
 * {
   margin: 0;
@@ -294,7 +292,6 @@ body::after {
   animation-delay: -4s;
 }
 
-
 header {
   background: rgba(255, 255, 255, 0.8);
   backdrop-filter: blur(10px);
@@ -314,7 +311,6 @@ header {
   justify-content: space-between;
   gap: 2rem;
 }
-
 
 .logo-section {
   display: flex;
@@ -501,7 +497,6 @@ main {
   margin-bottom: 2.5rem;
   position: relative;
 }
-
 
 .card {
   height: 220px;
@@ -781,6 +776,7 @@ main {
     pointer-events: none;
 }
 
+/* Modal */
 .modal {
     display: none;
     position: fixed;
