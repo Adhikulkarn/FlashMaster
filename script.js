@@ -1,4 +1,5 @@
 document.addEventListener('DOMContentLoaded', function() {
+    // DOM Elements
     const addCardBtn = document.getElementById('addCardBtn');
     const addCardModal = document.getElementById('addCardModal');
     const cardForm = document.getElementById('cardForm');
@@ -7,12 +8,13 @@ document.addEventListener('DOMContentLoaded', function() {
     const slideModeBtn = document.getElementById('slideMode');
     const revisionModeBtn = document.getElementById('revisionMode');
 
+    // State
     let cards = [];
     let currentCard = 0;
     let known = 0;
-    let currentMode = 'grid'; 
+    let currentMode = 'grid'; // 'grid', 'slide', or 'revision'
 
-    
+    // DOM elements
     const questionInput = document.getElementById("questionInput");
     const answerInput = document.getElementById("answerInput");
     const cardList = document.getElementById("cardList");
@@ -26,7 +28,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const dontKnowBtn = document.getElementById("dontKnowBtn");
     const progress = document.getElementById("progress");
 
-    
+    // Verify all elements are found
     console.log('Elements found:', {
         addCardBtn: !!addCardBtn,
         addCardModal: !!addCardModal,
@@ -35,9 +37,26 @@ document.addEventListener('DOMContentLoaded', function() {
         cardsGrid: !!cardsGrid
     });
 
-    
+    // Event Listeners
     if (cardForm) {
-        cardForm.addEventListener("submit", handleFormSubmit);
+        cardForm.addEventListener("submit", (e) => {
+            e.preventDefault();
+            console.log('Form submitted');
+            
+            const questionInput = document.getElementById('questionInput');
+            const answerInput = document.getElementById('answerInput');
+            
+            if (questionInput && answerInput) {
+                const question = questionInput.value.trim();
+                const answer = answerInput.value.trim();
+                
+                if (question && answer) {
+                    addNewCard(question, answer);
+                    closeModal();
+                    cardForm.reset();
+                }
+            }
+        });
     }
     
     if (flashcard) {
@@ -76,27 +95,6 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
-    if (cardForm) {
-        cardForm.addEventListener('submit', (e) => {
-            e.preventDefault();
-            console.log('Form submitted');
-            
-            const questionInput = document.getElementById('questionInput');
-            const answerInput = document.getElementById('answerInput');
-            
-            if (questionInput && answerInput) {
-                const question = questionInput.value.trim();
-                const answer = answerInput.value.trim();
-                
-                if (question && answer) {
-                    addNewCard(question, answer);
-                    closeModal();
-                    cardForm.reset();
-                }
-            }
-        });
-    }
-
     if (slideModeBtn) {
         slideModeBtn.addEventListener('click', () => switchMode('slide'));
     }
@@ -105,24 +103,8 @@ document.addEventListener('DOMContentLoaded', function() {
         revisionModeBtn.addEventListener('click', () => switchMode('revision'));
     }
 
-    
+    // Card flipping state
     let isFlipped = false;
-
-    function handleFormSubmit(e) {
-        e.preventDefault();
-        
-        
-        frontDisplay.textContent = questionInput.value;
-        backDisplay.textContent = answerInput.value;
-        
-        
-        cardForm.reset();
-        
-        
-        if (isFlipped) {
-            flipCard();
-        }
-    }
 
     function flipCard(cardElement) {
         if (!cardElement) return;
@@ -130,16 +112,18 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     function handleResponse(knewAnswer) {
-        
+        // Reset card to front side
         if (isFlipped) {
             flipCard();
         }
         
+        // Here you can add logic to handle whether the user knew the answer or not
+        // For example, tracking statistics or moving to next card
         const message = knewAnswer ? "Great job!" : "Keep practicing!";
         console.log(message);
     }
 
-
+    // Start revision
     const reviseBtn = document.getElementById("reviseBtn");
     if (reviseBtn) {
         reviseBtn.addEventListener("click", () => {
@@ -158,7 +142,8 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
-        function updateCard() {
+    // Display current card
+    function updateCard() {
         const card = cards[currentCard];
         frontDisplay.textContent = card.front;
         backDisplay.textContent = card.back;
@@ -166,7 +151,8 @@ document.addEventListener('DOMContentLoaded', function() {
         progress.textContent = `${currentCard + 1} / ${cards.length}`;
     }
 
-        function nextCard() {
+    // Go to next card
+    function nextCard() {
         currentCard++;
         if (currentCard < cards.length) {
             updateCard();
@@ -227,14 +213,57 @@ document.addEventListener('DOMContentLoaded', function() {
         
         cardDiv.innerHTML = `
             <div class="card-inner">
-                <div class="card-front">${escapeHtml(card.question)}</div>
+                <div class="card-front">
+                    ${escapeHtml(card.question)}
+                    <button class="delete-btn" aria-label="Delete card">×</button>
+                </div>
                 <div class="card-back">${escapeHtml(card.answer)}</div>
             </div>
         `;
         
-        cardDiv.addEventListener('click', () => flipCard(cardDiv));
+        // Add click event for card flipping
+        cardDiv.addEventListener('click', (e) => {
+            // Don't flip if clicking delete button
+            if (!e.target.classList.contains('delete-btn')) {
+                flipCard(cardDiv);
+            }
+        });
+
+        // Add click event for delete button
+        const deleteBtn = cardDiv.querySelector('.delete-btn');
+        if (deleteBtn) {
+            deleteBtn.addEventListener('click', (e) => {
+                e.stopPropagation(); // Prevent card flip when clicking delete
+                deleteCard(card.id);
+            });
+        }
         
         return cardDiv;
+    }
+
+    function deleteCard(cardId) {
+        // Find the card element
+        const cardElement = document.querySelector(`.card[data-id="${cardId}"]`);
+        if (!cardElement) return;
+
+        // Add deletion animation class
+        cardElement.classList.add('card-delete');
+
+        // Remove card from array
+        cards = cards.filter(card => card.id !== cardId);
+
+        // Remove element after animation
+        setTimeout(() => {
+            cardElement.remove();
+            
+            // Show message if no cards left
+            if (cards.length === 0) {
+                const message = document.createElement('div');
+                message.className = 'no-cards-message';
+                message.textContent = 'No cards yet! Click the + button to add some.';
+                cardsGrid.insertBefore(message, addCardBtn);
+            }
+        }, 300); // Match this with CSS animation duration
     }
 
     function escapeHtml(unsafe) {
@@ -255,11 +284,12 @@ document.addEventListener('DOMContentLoaded', function() {
         currentMode = mode;
         
         if (mode === 'slide' || mode === 'revision') {
+            // Implementation for slide and revision modes
             alert('Mode switching will be implemented in the next version!');
         }
     }
 
-
+    // Keyboard shortcuts
     document.addEventListener('keydown', (e) => {
         if (addCardModal) {
             if (e.key === 'Escape' && addCardModal.classList.contains('active')) {
