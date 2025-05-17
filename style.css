@@ -30,6 +30,7 @@
   --error-color: #FF1744;
   --card-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
   --hover-bg: #1F1F1F;
+  position: relative;
 }
 
 .dark-theme {
@@ -42,6 +43,46 @@
     #000000 100%
   );
   color: var(--text-color);
+}
+
+/* Subtle glows for dark mode */
+.dark-theme::before,
+.dark-theme::after {
+  content: '';
+  position: fixed;
+  border-radius: 50%;
+  filter: blur(120px);
+  opacity: 0.07;
+  pointer-events: none;
+}
+
+.dark-theme::before {
+  width: 45vw;
+  height: 45vw;
+  background: radial-gradient(circle, var(--primary-color), transparent 70%);
+  top: -20vh;
+  right: -10vw;
+  animation: darkFloat 20s ease-in-out infinite;
+}
+
+.dark-theme::after {
+  width: 35vw;
+  height: 35vw;
+  background: radial-gradient(circle, var(--accent-color), transparent 70%);
+  bottom: -15vh;
+  left: -10vw;
+  animation: darkFloat 25s ease-in-out infinite reverse;
+}
+
+@keyframes darkFloat {
+  0% { transform: translate(0, 0); }
+  50% { transform: translate(-5px, -10px); }
+  100% { transform: translate(0, 0); }
+}
+
+/* Hide light mode shapes in dark mode */
+.dark-theme .background-shapes {
+  display: none;
 }
 
 .dark-theme header {
@@ -193,18 +234,6 @@
   color: #000000;
 }
 
-body.dark-theme {
-  background: linear-gradient(
-    135deg,
-    #000000 0%,
-    #121212 25%,
-    #000000 50%,
-    #1F1F1F 75%,
-    #000000 100%
-  );
-  color: var(--text-color);
-}
-
 .dark-theme .logo-icon {
   color: var(--primary-color);
   text-shadow: 0 0 15px rgba(187, 134, 252, 0.5);
@@ -235,9 +264,15 @@ body.dark-theme {
 }
 
 @keyframes float {
-  0% { transform: translateY(0px); }
-  50% { transform: translateY(-20px); }
-  100% { transform: translateY(0px); }
+  0% { transform: translateY(0) rotate(0deg); }
+  50% { transform: translateY(-30px) rotate(5deg); }
+  100% { transform: translateY(0) rotate(0deg); }
+}
+
+@keyframes pulse {
+  0% { transform: scale(1); opacity: 0.3; }
+  50% { transform: scale(1.2); opacity: 0.5; }
+  100% { transform: scale(1); opacity: 0.3; }
 }
 
 * {
@@ -251,45 +286,89 @@ body {
   min-height: 100vh;
   color: var(--text-color);
   line-height: 1.6;
-  background: linear-gradient(
-    135deg,
-    #FDF8F8 0%,
-    #FFE1E0 25%,
-    #FDF8F8 50%,
-    #F8F0FF 75%,
-    #FDF8F8 100%
-  );
-  background-size: 400% 400%;
-  animation: gradient 15s ease infinite;
+  background: 
+    linear-gradient(120deg, rgba(244, 155, 171, 0.1) 0%, rgba(155, 126, 189, 0.1) 100%),
+    linear-gradient(60deg, rgba(155, 126, 189, 0.1) 0%, rgba(244, 155, 171, 0.1) 100%),
+    linear-gradient(180deg, #FDF8F8 0%, #FFE1E0 50%, #F8F0FF 100%);
   position: relative;
   overflow-x: hidden;
 }
+
 
 body::before,
 body::after {
   content: '';
   position: fixed;
-  width: 300px;
-  height: 300px;
   border-radius: 50%;
   z-index: -1;
-  filter: blur(80px);
-  opacity: 0.4;
-  animation: float 6s ease-in-out infinite;
+  filter: blur(60px);
+  opacity: 0.5;
+  animation: float 8s ease-in-out infinite;
 }
 
 body::before {
+  width: 30vw;
+  height: 30vw;
   background: var(--pink-medium);
-  top: -100px;
-  right: -100px;
+  top: -10vh;
+  right: -5vw;
   animation-delay: -2s;
 }
 
 body::after {
+  width: 25vw;
+  height: 25vw;
   background: var(--purple-light);
-  bottom: -100px;
-  left: -100px;
+  bottom: -10vh;
+  left: -5vw;
   animation-delay: -4s;
+}
+
+.background-shapes {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: -2;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.background-shapes::before {
+  content: '';
+  position: absolute;
+  width: 40vw;
+  height: 40vw;
+  background: radial-gradient(circle, rgba(155, 126, 189, 0.15) 0%, transparent 70%);
+  top: 30%;
+  left: 20%;
+  border-radius: 50%;
+  animation: pulse 6s ease-in-out infinite;
+}
+
+.background-shapes::after {
+  content: '';
+  position: absolute;
+  width: 35vw;
+  height: 35vw;
+  background: radial-gradient(circle, rgba(244, 155, 171, 0.15) 0%, transparent 70%);
+  bottom: 20%;
+  right: 15%;
+  border-radius: 50%;
+  animation: pulse 8s ease-in-out infinite reverse;
+}
+
+@keyframes float {
+  0% { transform: translate(0, 0); }
+  50% { transform: translate(-10px, -20px); }
+  100% { transform: translate(0, 0); }
+}
+
+@keyframes pulse {
+  0% { transform: scale(1); opacity: 0.3; }
+  50% { transform: scale(1.1); opacity: 0.6; }
+  100% { transform: scale(1); opacity: 0.3; }
 }
 
 header {
