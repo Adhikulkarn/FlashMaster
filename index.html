@@ -7,6 +7,7 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 </head>
 <body>
+  <div class="background-shapes"></div>
   <header>
     <div class="header-container">
       <div class="logo-section">
@@ -24,8 +25,8 @@
           <span>Study Mode</span>
         </button>
         <button class="nav-btn">
-          <i class="fas fa-chart-bar"></i>
-          <span>Stats</span>
+          <i class="fas fa-question-circle"></i>
+          <span>Quiz Mode</span>
         </button>
       </nav>
 
@@ -44,18 +45,125 @@
       <p>Level up your memory game! Create cards, flip like a pro, and watch your brain power grow. Hit that "+" to begin your genius journey! 🚀</p>
     </section>
 
+    <!-- Grid View -->
     <section class="cards-grid" id="cardsGrid">
-      <!-- Add Card Button -->
       <div class="add-card" id="addCardBtn">
         <div class="add-icon">+</div>
         <div class="add-text">Add card</div>
       </div>
     </section>
 
-    <section class="mode-buttons">
-      <button id="slideMode"><span>Slide mode</span></button>
-      <button id="revisionMode"><span>Revision Mode</span></button>
+    <!-- Study Mode View -->
+    <section class="study-mode" id="studyMode" style="display: none;">
+      <div class="study-container">
+        <div class="study-progress">
+          <div class="progress-bar">
+            <div class="progress-fill" id="progressFill"></div>
+          </div>
+          <div class="progress-text">
+            <span id="currentCardNumber">0</span>/<span id="totalCards">0</span>
+          </div>
+        </div>
+        
+        <div class="study-card" id="studyCard">
+          <div class="study-card-inner">
+            <div class="study-card-front">
+              <div class="study-card-content" id="questionContent"></div>
+            </div>
+            <div class="study-card-back">
+              <div class="study-card-content" id="answerContent"></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="study-controls">
+          <button class="study-btn" id="prevCard">
+            <i class="fas fa-chevron-left"></i>
+            Previous
+          </button>
+          <button class="study-btn primary" id="flipCard">
+            <i class="fas fa-sync-alt"></i>
+            Flip
+          </button>
+          <button class="study-btn" id="nextCard">
+            Next
+            <i class="fas fa-chevron-right"></i>
+          </button>
+        </div>
+
+        <div class="confidence-buttons">
+          <button class="confidence-btn hard" id="hardBtn">
+            <i class="fas fa-times"></i>
+            Need More Practice
+          </button>
+          <button class="confidence-btn medium" id="mediumBtn">
+            <i class="fas fa-minus"></i>
+            Almost There
+          </button>
+          <button class="confidence-btn easy" id="easyBtn">
+            <i class="fas fa-check"></i>
+            Got It!
+          </button>
+        </div>
+      </div>
     </section>
+
+    <section class="multiple-choice" id="multipleChoice" style="display: none;">
+      <div class="quiz-container">
+        <div class="quiz-progress">
+          <div class="progress-bar">
+            <div class="progress-fill" id="quizProgressFill"></div>
+          </div>
+          <div class="progress-text">
+            <span id="quizScore">Score: 0</span>
+            <span id="quizProgress">Question 1/10</span>
+          </div>
+        </div>
+
+        <div class="quiz-card">
+          <div class="quiz-question" id="quizQuestion"></div>
+          <div class="quiz-options" id="quizOptions">
+            <button class="quiz-option" data-index="0"></button>
+            <button class="quiz-option" data-index="1"></button>
+            <button class="quiz-option" data-index="2"></button>
+            <button class="quiz-option" data-index="3"></button>
+          </div>
+        </div>
+
+        <div class="quiz-feedback" id="quizFeedback">
+          <div class="feedback-message"></div>
+          <button class="quiz-btn primary" id="nextQuestion">
+            Next Question
+            <i class="fas fa-arrow-right"></i>
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <div class="modal quiz-completion-modal" id="quizCompletionModal">
+      <div class="modal-content quiz-result">
+        <div class="quiz-result-header">
+          <h2>Quiz Completed! 🎉</h2>
+        </div>
+        <div class="quiz-result-score">
+          <div class="score-circle">
+            <span id="finalScore">0/0</span>
+          </div>
+          <div class="score-percentage" id="scorePercentage">0%</div>
+        </div>
+        <div class="quiz-result-message" id="completionMessage"></div>
+        <div class="modal-buttons">
+          <button type="button" class="quiz-btn primary" id="retryQuizBtn">
+            <i class="fas fa-redo"></i>
+            Try Again
+          </button>
+          <button type="button" class="quiz-btn" id="backToGridBtn">
+            <i class="fas fa-th-large"></i>
+            Back to Grid
+          </button>
+        </div>
+      </div>
+    </div>
 
     <div class="modal" id="addCardModal">
       <div class="modal-content">

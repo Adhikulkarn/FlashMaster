@@ -31,6 +31,35 @@ document.addEventListener('DOMContentLoaded', function() {
     const dontKnowBtn = document.getElementById("dontKnowBtn");
     const progress = document.getElementById("progress");
 
+    const studyMode = document.getElementById('studyMode');
+    const studyCard = document.getElementById('studyCard');
+    const questionContent = document.getElementById('questionContent');
+    const answerContent = document.getElementById('answerContent');
+    const progressFill = document.getElementById('progressFill');
+    const currentCardNumber = document.getElementById('currentCardNumber');
+    const totalCards = document.getElementById('totalCards');
+    const prevCardBtn = document.getElementById('prevCard');
+    const nextCardBtn = document.getElementById('nextCard');
+    const flipCardBtn = document.getElementById('flipCard');
+    const hardBtn = document.getElementById('hardBtn');
+    const mediumBtn = document.getElementById('mediumBtn');
+    const easyBtn = document.getElementById('easyBtn');
+
+    const multipleChoice = document.getElementById('multipleChoice');
+    const quizQuestion = document.getElementById('quizQuestion');
+    const quizOptions = document.getElementById('quizOptions');
+    const quizFeedback = document.getElementById('quizFeedback');
+    const nextQuestionBtn = document.getElementById('nextQuestion');
+    const quizScore = document.getElementById('quizScore');
+    const quizProgress = document.getElementById('quizProgress');
+    const quizProgressFill = document.getElementById('quizProgressFill');
+
+    const quizCompletionModal = document.getElementById('quizCompletionModal');
+    const finalScore = document.getElementById('finalScore');
+    const scorePercentage = document.getElementById('scorePercentage');
+    const completionMessage = document.getElementById('completionMessage');
+    const retryQuizBtn = document.getElementById('retryQuizBtn');
+    const backToGridBtn = document.getElementById('backToGridBtn');
 
     console.log('Elements found:', {
         addCardBtn: !!addCardBtn,
@@ -313,10 +342,331 @@ document.addEventListener('DOMContentLoaded', function() {
 
     navBtns.forEach(btn => {
         btn.addEventListener('click', () => {
+            console.log('Nav button clicked:', btn.textContent.trim());
             navBtns.forEach(b => b.classList.remove('active'));
             btn.classList.add('active');
+            
+            if (btn.textContent.includes('Study Mode')) {
+                if (cards.length === 0) {
+                    alert('Please add some cards first!');
+                    return;
+                }
+                startStudyMode();
+            } else if (btn.textContent.includes('Grid View')) {
+                exitStudyMode();
+                exitQuizMode();
+            } else if (btn.textContent.includes('Quiz Mode')) {
+                console.log('Starting quiz mode...');
+                if (cards.length === 0) {
+                    alert('Please add some cards first!');
+                    return;
+                }
+                startQuizMode();
+            }
         });
     });
 
+    let currentStudyIndex = 0;
+    let studyCards = [];
+    let cardScores = new Map();
+
+    function startStudyMode() {
+        cardsGrid.style.display = 'none';
+        studyMode.style.display = 'block';
+        studyCards = [...cards].sort(() => Math.random() - 0.5);
+        currentStudyIndex = 0;
+        updateStudyCard();
+        updateProgress();
+    }
+
+    function exitStudyMode() {
+        studyMode.style.display = 'none';
+        cardsGrid.style.display = 'grid';
+    }
+
+    function updateStudyCard() {
+        if (studyCards.length === 0) return;
+        
+        const card = studyCards[currentStudyIndex];
+        questionContent.textContent = card.question;
+        answerContent.textContent = card.answer;
+        studyCard.classList.remove('flipped');
+        
+        prevCardBtn.disabled = currentStudyIndex === 0;
+        nextCardBtn.disabled = currentStudyIndex === studyCards.length - 1;
+        
+        updateProgress();
+    }
+
+    function updateProgress() {
+        const progress = ((currentStudyIndex + 1) / studyCards.length) * 100;
+        progressFill.style.width = `${progress}%`;
+        currentCardNumber.textContent = currentStudyIndex + 1;
+        totalCards.textContent = studyCards.length;
+    }
+
+    if (flipCardBtn) {
+        flipCardBtn.addEventListener('click', () => {
+            studyCard.classList.toggle('flipped');
+        });
+    }
+
+    if (prevCardBtn) {
+        prevCardBtn.addEventListener('click', () => {
+            if (currentStudyIndex > 0) {
+                currentStudyIndex--;
+                updateStudyCard();
+            }
+        });
+    }
+
+    if (nextCardBtn) {
+        nextCardBtn.addEventListener('click', () => {
+            if (currentStudyIndex < studyCards.length - 1) {
+                currentStudyIndex++;
+                updateStudyCard();
+            }
+        });
+    }
+
+    function handleConfidence(score) {
+        const currentCard = studyCards[currentStudyIndex];
+        cardScores.set(currentCard.id, score);
+        
+        const btn = score === 1 ? hardBtn : score === 2 ? mediumBtn : easyBtn;
+        btn.classList.add('active');
+        setTimeout(() => btn.classList.remove('active'), 500);
+
+        if (currentStudyIndex < studyCards.length - 1) {
+            setTimeout(() => {
+                currentStudyIndex++;
+                updateStudyCard();
+            }, 500);
+        } else {
+            const averageScore = Array.from(cardScores.values()).reduce((a, b) => a + b, 0) / cardScores.size;
+            const message = averageScore > 2.5 ? "Great job! You're mastering these cards! 🎉" :
+                          averageScore > 1.5 ? "Good progress! Keep practicing! 💪" :
+                          "Keep studying! You'll get there! 📚";
+            
+            setTimeout(() => {
+                alert(message);
+                exitStudyMode();
+            }, 500);
+        }
+    }
+
+    if (hardBtn) hardBtn.addEventListener('click', () => handleConfidence(1));
+    if (mediumBtn) mediumBtn.addEventListener('click', () => handleConfidence(2));
+    if (easyBtn) easyBtn.addEventListener('click', () => handleConfidence(3));
+
     updateCardCount();
+
+    let currentQuizIndex = 0;
+    let quizQuestions = [];
+    let score = 0;
+    const questionsPerQuiz = 10;
+
+    console.log('Quiz Elements:', {
+        multipleChoice: !!multipleChoice,
+        quizQuestion: !!quizQuestion,
+        quizOptions: !!quizOptions,
+        quizFeedback: !!quizFeedback,
+        nextQuestionBtn: !!nextQuestionBtn,
+        quizScore: !!quizScore,
+        quizProgress: !!quizProgress,
+        quizProgressFill: !!quizProgressFill
+    });
+
+    function startQuizMode() {
+        console.log('Starting quiz mode with', cards.length, 'cards');
+        if (cards.length < 4) {
+            alert('Please add at least 4 cards to start the quiz mode!');
+            return;
+        }
+
+        cardsGrid.style.display = 'none';
+        studyMode.style.display = 'none';
+        multipleChoice.style.display = 'block';
+
+        generateQuizQuestions();
+        currentQuizIndex = 0;
+        score = 0;
+        updateQuizProgress();
+        showQuestion();
+    }
+
+    function exitQuizMode() {
+        if (multipleChoice) {
+            multipleChoice.style.display = 'none';
+        }
+        cardsGrid.style.display = 'grid';
+    }
+
+    function generateQuizQuestions() {
+        quizQuestions = [];
+        const shuffledCards = [...cards].sort(() => Math.random() - 0.5);
+        console.log('Generating quiz questions from', shuffledCards.length, 'cards');
+        
+        for (let i = 0; i < Math.min(questionsPerQuiz, shuffledCards.length); i++) {
+            const correctCard = shuffledCards[i];
+            const otherCards = shuffledCards.filter(card => card.id !== correctCard.id);
+            
+            const isQuestionToAnswer = Math.random() > 0.5;
+            
+            const question = {
+                prompt: isQuestionToAnswer ? correctCard.question : correctCard.answer,
+                correctAnswer: isQuestionToAnswer ? correctCard.answer : correctCard.question,
+                options: [isQuestionToAnswer ? correctCard.answer : correctCard.question],
+                type: isQuestionToAnswer ? 'questionToAnswer' : 'answerToQuestion'
+            };
+
+            while (question.options.length < 4 && otherCards.length > 0) {
+                const randomIndex = Math.floor(Math.random() * otherCards.length);
+                const option = isQuestionToAnswer ? otherCards[randomIndex].answer : otherCards[randomIndex].question;
+                
+                if (!question.options.includes(option)) {
+                    question.options.push(option);
+                }
+                otherCards.splice(randomIndex, 1);
+            }
+
+            question.options = question.options.sort(() => Math.random() - 0.5);
+            quizQuestions.push(question);
+        }
+        console.log('Generated', quizQuestions.length, 'quiz questions');
+    }
+
+    function showQuestion() {
+        if (!quizQuestions.length) {
+            console.error('No quiz questions available');
+            return;
+        }
+
+        const question = quizQuestions[currentQuizIndex];
+        console.log('Showing question', currentQuizIndex + 1, 'of', quizQuestions.length);
+        
+        const questionType = question.type === 'questionToAnswer' ? 
+            'What is the answer to this question?' : 
+            'Which question matches this answer?';
+
+        quizQuestion.textContent = `${questionType}\n\n${question.prompt}`;
+        
+        while (quizOptions.firstChild) {
+            quizOptions.firstChild.remove();
+        }
+
+        question.options.forEach((option, index) => {
+            const button = document.createElement('button');
+            button.className = 'quiz-option';
+            button.textContent = option;
+            button.dataset.index = index;
+            
+            button.addEventListener('click', () => handleQuizAnswer(option));
+            quizOptions.appendChild(button);
+        });
+
+        quizFeedback.classList.remove('active');
+        nextQuestionBtn.style.display = 'none';
+    }
+
+    function handleQuizAnswer(selectedAnswer) {
+        const question = quizQuestions[currentQuizIndex];
+        const isCorrect = selectedAnswer === question.correctAnswer;
+        const options = quizOptions.querySelectorAll('.quiz-option');
+        
+        console.log('Answer selected:', {
+            selected: selectedAnswer,
+            correct: question.correctAnswer,
+            isCorrect
+        });
+
+        options.forEach(option => {
+            option.classList.add('disabled');
+            
+            if (option.textContent === question.correctAnswer) {
+                option.classList.add('correct');
+            } else if (option.textContent === selectedAnswer && !isCorrect) {
+                option.classList.add('incorrect');
+            }
+        });
+
+        const feedbackMessage = quizFeedback.querySelector('.feedback-message');
+        if (isCorrect) {
+            score++;
+            feedbackMessage.textContent = '🎉 Correct! Well done!';
+        } else {
+            feedbackMessage.textContent = `❌ Incorrect. The correct answer was: ${question.correctAnswer}`;
+        }
+
+        quizFeedback.classList.add('active');
+        nextQuestionBtn.style.display = 'inline-flex';
+        updateQuizProgress();
+    }
+
+    function showQuizCompletionModal(score, total) {
+        const percentage = (score / total) * 100;
+        let message = '';
+        
+        if (percentage === 100) {
+            message = "🏆 Perfect score! You're a FlashMaster champion!";
+        } else if (percentage >= 80) {
+            message = "🌟 Excellent work! Keep it up!";
+        } else if (percentage >= 60) {
+            message = "👍 Good job! A bit more practice and you'll be a master!";
+        } else {
+            message = "📚 Keep practicing! You're learning with every attempt!";
+        }
+
+        finalScore.textContent = `${score}/${total}`;
+        scorePercentage.textContent = `${Math.round(percentage)}%`;
+        completionMessage.textContent = message;
+
+        quizCompletionModal.style.display = 'flex';
+        setTimeout(() => {
+            quizCompletionModal.classList.add('active');
+        }, 10);
+    }
+
+    function closeQuizCompletionModal() {
+        quizCompletionModal.classList.remove('active');
+        setTimeout(() => {
+            quizCompletionModal.style.display = 'none';
+        }, 300);
+    }
+
+    if (retryQuizBtn) {
+        retryQuizBtn.addEventListener('click', () => {
+            closeQuizCompletionModal();
+            startQuizMode();
+        });
+    }
+
+    if (backToGridBtn) {
+        backToGridBtn.addEventListener('click', () => {
+            closeQuizCompletionModal();
+            exitQuizMode();
+        });
+    }
+
+    if (nextQuestionBtn) {
+        nextQuestionBtn.addEventListener('click', () => {
+            console.log('Next question clicked, current index:', currentQuizIndex);
+            currentQuizIndex++;
+            
+            if (currentQuizIndex < quizQuestions.length) {
+                showQuestion();
+            } else {
+                showQuizCompletionModal(score, quizQuestions.length);
+            }
+        });
+    }
+
+    function updateQuizProgress() {
+        if (!quizQuestions.length) return;
+        
+        const progress = ((currentQuizIndex + 1) / quizQuestions.length) * 100;
+        quizProgressFill.style.width = `${progress}%`;
+        quizScore.textContent = `Score: ${score}`;
+        quizProgress.textContent = `Question ${currentQuizIndex + 1}/${quizQuestions.length}`;
+    }
 });
