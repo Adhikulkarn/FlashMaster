@@ -11,12 +11,44 @@ document.addEventListener('DOMContentLoaded', function() {
     const themeToggle = document.querySelector('.theme-toggle');
     const navBtns = document.querySelectorAll('.nav-btn');
 
-
     let cards = [];
     let currentCard = 0;
     let known = 0;
     let currentMode = 'grid'; 
 
+
+    const sampleCards = [
+        {
+            id: 1,
+            question: "What is the capital of France?",
+            answer: "Paris"
+        },
+        {
+            id: 2,
+            question: "What is the largest planet in our solar system?",
+            answer: "Jupiter"
+        },
+        {
+            id: 3,
+            question: "Who painted the Mona Lisa?",
+            answer: "Leonardo da Vinci"
+        },
+        {
+            id: 4,
+            question: "What is the chemical symbol for gold?",
+            answer: "Au"
+        }
+    ];
+
+    // Function to load sample cards
+    function loadSampleCards() {
+        sampleCards.forEach(card => {
+            addNewCard(card.question, card.answer);
+        });
+    }
+
+    // Load sample cards when the app starts
+    loadSampleCards();
 
     const questionInput = document.getElementById("questionInput");
     const answerInput = document.getElementById("answerInput");
