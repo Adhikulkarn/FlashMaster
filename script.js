@@ -8,6 +8,11 @@ document.addEventListener('DOMContentLoaded', function() {
     const slideModeBtn = document.getElementById('slideMode');
     const revisionModeBtn = document.getElementById('revisionMode');
 
+    // New header elements
+    const cardCount = document.querySelector('.card-count');
+    const themeToggle = document.querySelector('.theme-toggle');
+    const navBtns = document.querySelectorAll('.nav-btn');
+
     // State
     let cards = [];
     let currentCard = 0;
@@ -192,16 +197,14 @@ document.addEventListener('DOMContentLoaded', function() {
         cardElement.classList.add('card-delete');
 
         cards = cards.filter(card => card.id !== cardId);
+        updateCardCount(); 
 
         setTimeout(() => {
             cardElement.remove();
             
-            // Show message if no cards left
             if (cards.length === 0) {
                 const existingMessages = document.querySelectorAll('.no-cards-message');
                 existingMessages.forEach(msg => msg.remove());
-                
-                
                 const message = document.createElement('div');
                 message.className = 'no-cards-message';
                 message.textContent = 'No cards yet! Click the + button to add some.';
@@ -214,7 +217,6 @@ document.addEventListener('DOMContentLoaded', function() {
         if (!cardsGrid || !addCardBtn) return;
         
         console.log('Adding new card:', { question, answer });
-        
         const noCardsMessage = document.querySelector('.no-cards-message');
         if (noCardsMessage) {
             noCardsMessage.remove();
@@ -227,7 +229,7 @@ document.addEventListener('DOMContentLoaded', function() {
         };
         
         cards.push(card);
-        
+        updateCardCount();
         const cardElement = createCardElement(card);
         cardsGrid.insertBefore(cardElement, addCardBtn);
         
@@ -254,18 +256,16 @@ document.addEventListener('DOMContentLoaded', function() {
             </div>
         `;
         
-        // Add click event for card flipping
         cardDiv.addEventListener('click', (e) => {
             if (!e.target.classList.contains('delete-btn')) {
                 flipCard(cardDiv);
             }
         });
 
-        // Add click event for both delete buttons
         const deleteButtons = cardDiv.querySelectorAll('.delete-btn');
         deleteButtons.forEach(btn => {
             btn.addEventListener('click', (e) => {
-                e.stopPropagation(); 
+                e.stopPropagation();
                 deleteCard(card.id);
             });
         });
@@ -295,7 +295,6 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 
-    // Keyboard shortcuts yo can use these if needed or as an additional feature
     document.addEventListener('keydown', (e) => {
         if (addCardModal) {
             if (e.key === 'Escape' && addCardModal.classList.contains('active')) {
@@ -307,4 +306,29 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         }
     });
+
+    function updateCardCount() {
+        cardCount.textContent = `${cards.length} Card${cards.length !== 1 ? 's' : ''}`;
+    }
+
+    if (themeToggle) {
+        themeToggle.addEventListener('click', () => {
+            document.body.classList.toggle('dark-theme');
+            const icon = themeToggle.querySelector('i');
+            if (icon) {
+                icon.classList.toggle('fa-moon');
+                icon.classList.toggle('fa-sun');
+            }
+        });
+    }
+
+
+    navBtns.forEach(btn => {
+        btn.addEventListener('click', () => {
+            navBtns.forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+        });
+    });
+
+    updateCardCount();
 });

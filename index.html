@@ -4,10 +4,38 @@
   <meta charset="UTF-8">
   <title>FlashMaster - Smart Flashcard App</title>
   <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 </head>
 <body>
   <header>
-    <h1>FlashMaster</h1>
+    <div class="header-container">
+      <div class="logo-section">
+        <i class="fas fa-brain logo-icon"></i>
+        <h1>FlashMaster</h1>
+      </div>
+      
+      <nav class="header-nav">
+        <button class="nav-btn active">
+          <i class="fas fa-th-large"></i>
+          <span>Grid View</span>
+        </button>
+        <button class="nav-btn">
+          <i class="fas fa-book-reader"></i>
+          <span>Study Mode</span>
+        </button>
+        <button class="nav-btn">
+          <i class="fas fa-chart-bar"></i>
+          <span>Stats</span>
+        </button>
+      </nav>
+
+      <div class="header-actions">
+        <span class="card-count">0 Cards</span>
+        <button class="theme-toggle">
+          <i class="fas fa-moon"></i>
+        </button>
+      </div>
+    </div>
   </header>
 
   <main>
@@ -29,7 +57,6 @@
       <button id="revisionMode"><span>Revision Mode</span></button>
     </section>
 
-    <!-- Add Card Modal -->
     <div class="modal" id="addCardModal">
       <div class="modal-content">
         <h2>Add New Flashcard</h2>
