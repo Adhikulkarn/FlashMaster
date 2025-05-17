@@ -1,4 +1,7 @@
 document.addEventListener('DOMContentLoaded', function() {
+    // Clear all flashcard data from localStorage
+    localStorage.removeItem('flashcards');
+    
     const addCardBtn = document.getElementById('addCardBtn');
     const addCardModal = document.getElementById('addCardModal');
     const cardForm = document.getElementById('cardForm');
@@ -16,6 +19,8 @@ document.addEventListener('DOMContentLoaded', function() {
     let known = 0;
     let currentMode = 'grid'; 
 
+    // Load saved cards from localStorage first
+    loadCardsFromStorage();
 
     const sampleCards = [
         {
@@ -47,8 +52,10 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
-    // Load sample cards when the app starts
-    loadSampleCards();
+    // Only load sample cards if no cards exist
+    if (cards.length === 0) {
+        loadSampleCards();
+    }
 
     const questionInput = document.getElementById("questionInput");
     const answerInput = document.getElementById("answerInput");
@@ -273,6 +280,8 @@ document.addEventListener('DOMContentLoaded', function() {
         
         cards.push(card);
         updateCardCount();
+        saveCardsToStorage(); // Save cards to localStorage
+        
         const cardElement = createCardElement(card);
         cardsGrid.insertBefore(cardElement, addCardBtn);
         
@@ -290,17 +299,25 @@ document.addEventListener('DOMContentLoaded', function() {
             <div class="card-inner">
                 <div class="card-front">
                     <button class="delete-btn" aria-label="Delete card">×</button>
+                    <div class="status-indicator"></div>
                     <div class="card-content">${escapeHtml(card.question)}</div>
                 </div>
                 <div class="card-back">
                     <button class="delete-btn" aria-label="Delete card">×</button>
                     <div class="card-content">${escapeHtml(card.answer)}</div>
+                    <div class="card-buttons">
+                        <button class="know-btn">I know</button>
+                        <button class="dont-know-btn">I don't know</button>
+                    </div>
                 </div>
             </div>
         `;
         
+        // Main card clicking to flip
         cardDiv.addEventListener('click', (e) => {
-            if (!e.target.classList.contains('delete-btn')) {
+            if (!e.target.classList.contains('delete-btn') && 
+                !e.target.classList.contains('know-btn') && 
+                !e.target.classList.contains('dont-know-btn')) {
                 flipCard(cardDiv);
             }
         });
@@ -312,6 +329,44 @@ document.addEventListener('DOMContentLoaded', function() {
                 deleteCard(card.id);
             });
         });
+        
+        const knowBtn = cardDiv.querySelector('.know-btn');
+        if (knowBtn) {
+            knowBtn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                const currentCard = e.target.closest('.card');
+                if (currentCard) {
+                    // Add indicator
+                    const indicator = currentCard.querySelector('.status-indicator');
+                    if (indicator) {
+                        indicator.innerHTML = '✓'; // Checkmark
+                        indicator.className = 'status-indicator known';
+                    }
+                    
+                    showToast(`Great! You know "${card.question}"`, 'success');
+                    setTimeout(() => currentCard.classList.remove('flipped'), 500);
+                }
+            });
+        }
+        
+        const dontKnowBtn = cardDiv.querySelector('.dont-know-btn');
+        if (dontKnowBtn) {
+            dontKnowBtn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                const currentCard = e.target.closest('.card');
+                if (currentCard) {
+                    // Add indicator
+                    const indicator = currentCard.querySelector('.status-indicator');
+                    if (indicator) {
+                        indicator.innerHTML = '✗'; // X mark
+                        indicator.className = 'status-indicator unknown';
+                    }
+                    
+                    showToast(`Keep practicing "${card.question}"`, 'warning');
+                    setTimeout(() => currentCard.classList.remove('flipped'), 500);
+                }
+            });
+        }
         
         return cardDiv;
     }
@@ -638,7 +693,6 @@ document.addEventListener('DOMContentLoaded', function() {
         quizFeedback.classList.add('active');
         updateQuizProgress();
 
-        // Show floating next button
         floatingNextBtn.style.display = 'flex';
         setTimeout(() => {
             floatingNextBtn.classList.add('visible');
@@ -736,5 +790,93 @@ document.addEventListener('DOMContentLoaded', function() {
 
     if (closeWarningBtn) {
         closeWarningBtn.addEventListener('click', closeNoCardsWarning);
+    }
+
+    function handleCardKnowledge(cardId, isKnown) {
+        const card = cards.find(c => c.id === cardId);
+        if (!card) return;
+        
+        const message = isKnown ? 
+            `Great! You know "${card.question}"` : 
+            `Keep practicing "${card.question}"`;
+        
+        const cardElement = document.querySelector(`.card[data-id="${cardId}"]`);
+        if (cardElement) {
+            showToast(message, isKnown ? 'success' : 'warning');
+            
+            setTimeout(() => {
+                if (!cardElement.classList.contains('flipped')) {
+                    cardElement.classList.add('flipped');
+                }
+                
+                setTimeout(() => {
+                    cardElement.classList.remove('flipped');
+                }, 100);
+            }, 300);
+        }
+    }
+
+    function showToast(message, type = 'info') {
+        let toastContainer = document.querySelector('.toast-container');
+        if (!toastContainer) {
+            toastContainer = document.createElement('div');
+            toastContainer.className = 'toast-container';
+            document.body.appendChild(toastContainer);
+        }
+        
+        const toast = document.createElement('div');
+        toast.className = `toast ${type}`;
+        toast.innerHTML = `
+            <div class="toast-message">${message}</div>
+        `;
+        
+        toastContainer.appendChild(toast);
+        
+        setTimeout(() => {
+            toast.classList.add('show');
+        }, 10);
+        
+        setTimeout(() => {
+            toast.classList.remove('show');
+            setTimeout(() => {
+                toast.remove();
+            }, 300);
+        }, 3000);
+    }
+
+    function saveCardsToStorage() {
+        localStorage.setItem('flashcards', JSON.stringify(cards));
+    }
+
+    function loadCardsFromStorage() {
+        const savedCards = localStorage.getItem('flashcards');
+        if (savedCards) {
+            cards = JSON.parse(savedCards);
+            
+            cards.forEach(card => {
+                if (card.hasOwnProperty('isKnown')) {
+                    delete card.isKnown;
+                }
+            });
+            
+            saveCardsToStorage();
+            
+            const existingCards = document.querySelectorAll('.card:not(#addCardBtn)');
+            existingCards.forEach(card => card.remove());
+            
+            cards.forEach(card => {
+                const cardElement = createCardElement(card);
+                if (cardsGrid && addCardBtn) {
+                    cardsGrid.insertBefore(cardElement, addCardBtn);
+                    
+                    cardElement.classList.remove('card-known-status', 'card-unknown-status');
+                    
+                    requestAnimationFrame(() => {
+                        cardElement.classList.add('card-entrance');
+                    });
+                }
+            });
+            updateCardCount();
+        }
     }
 });
