@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>FlashMaster - Smart Flashcard App</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header>
+    <h1>FlashMaster</h1>
+  </header>
+
+  <main>
+    <section class="about-section">
+      <h2>About the application and how to use it</h2>
+      <p>Create and study flashcards easily. Click the "+" button to add new cards, then use study modes to test your knowledge.</p>
+    </section>
+
+    <section class="cards-grid" id="cardsGrid">
+      <!-- Add Card Button -->
+      <div class="add-card" id="addCardBtn">
+        <div class="add-icon">+</div>
+        <div class="add-text">Add card</div>
+      </div>
+    </section>
+
+    <section class="mode-buttons">
+      <button id="slideMode"><span>Slide mode</span></button>
+      <button id="revisionMode"><span>Revision Mode</span></button>
+    </section>
+
+    <!-- Add Card Modal -->
+    <div class="modal" id="addCardModal">
+      <div class="modal-content">
+        <h2>Add New Flashcard</h2>
+        <form id="cardForm">
+          <input type="text" id="questionInput" placeholder="Enter question..." required>
+          <input type="text" id="answerInput" placeholder="Enter answer..." required>
+          <div class="modal-buttons">
+            <button type="submit">Add Card</button>
+            <button type="button" id="cancelAdd">Cancel</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </main>
+
+  <script src="script.js"></script>
+</body>
+</html>
