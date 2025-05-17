@@ -214,10 +214,13 @@ document.addEventListener('DOMContentLoaded', function() {
         cardDiv.innerHTML = `
             <div class="card-inner">
                 <div class="card-front">
-                    ${escapeHtml(card.question)}
                     <button class="delete-btn" aria-label="Delete card">×</button>
+                    <div class="card-content">${escapeHtml(card.question)}</div>
                 </div>
-                <div class="card-back">${escapeHtml(card.answer)}</div>
+                <div class="card-back">
+                    <button class="delete-btn" aria-label="Delete card">×</button>
+                    <div class="card-content">${escapeHtml(card.answer)}</div>
+                </div>
             </div>
         `;
         
@@ -229,14 +232,14 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         });
 
-        // Add click event for delete button
-        const deleteBtn = cardDiv.querySelector('.delete-btn');
-        if (deleteBtn) {
-            deleteBtn.addEventListener('click', (e) => {
+        // Add click event for both delete buttons
+        const deleteButtons = cardDiv.querySelectorAll('.delete-btn');
+        deleteButtons.forEach(btn => {
+            btn.addEventListener('click', (e) => {
                 e.stopPropagation(); // Prevent card flip when clicking delete
                 deleteCard(card.id);
             });
-        }
+        });
         
         return cardDiv;
     }
