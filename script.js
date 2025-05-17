@@ -61,6 +61,9 @@ document.addEventListener('DOMContentLoaded', function() {
     const retryQuizBtn = document.getElementById('retryQuizBtn');
     const backToGridBtn = document.getElementById('backToGridBtn');
     const floatingNextBtn = document.getElementById('floatingNextBtn');
+    const noCardsModal = document.getElementById('noCardsModal');
+    const addCardsBtn = document.getElementById('addCardsBtn');
+    const closeWarningBtn = document.getElementById('closeWarningBtn');
 
     console.log('Elements found:', {
         addCardBtn: !!addCardBtn,
@@ -349,7 +352,7 @@ document.addEventListener('DOMContentLoaded', function() {
             
             if (btn.textContent.includes('Study Mode')) {
                 if (cards.length === 0) {
-                    alert('Please add some cards first!');
+                    showNoCardsWarning();
                     return;
                 }
                 startStudyMode();
@@ -359,7 +362,7 @@ document.addEventListener('DOMContentLoaded', function() {
             } else if (btn.textContent.includes('Quiz Mode')) {
                 console.log('Starting quiz mode...');
                 if (cards.length === 0) {
-                    alert('Please add some cards first!');
+                    showNoCardsWarning();
                     return;
                 }
                 startQuizMode();
@@ -674,5 +677,32 @@ document.addEventListener('DOMContentLoaded', function() {
         quizProgressFill.style.width = `${progress}%`;
         quizScore.textContent = `Score: ${score}`;
         quizProgress.textContent = `Question ${currentQuizIndex + 1}/${quizQuestions.length}`;
+    }
+
+    function showNoCardsWarning() {
+        if (!noCardsModal) return;
+        noCardsModal.style.display = 'flex';
+        setTimeout(() => {
+            noCardsModal.classList.add('active');
+        }, 10);
+    }
+
+    function closeNoCardsWarning() {
+        if (!noCardsModal) return;
+        noCardsModal.classList.remove('active');
+        setTimeout(() => {
+            noCardsModal.style.display = 'none';
+        }, 300);
+    }
+
+    if (addCardsBtn) {
+        addCardsBtn.addEventListener('click', () => {
+            closeNoCardsWarning();
+            openModal(); // Open the add card modal
+        });
+    }
+
+    if (closeWarningBtn) {
+        closeWarningBtn.addEventListener('click', closeNoCardsWarning);
     }
 });
