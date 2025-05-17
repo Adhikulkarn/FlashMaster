@@ -1,5 +1,4 @@
 document.addEventListener('DOMContentLoaded', function() {
-    // DOM Elements
     const addCardBtn = document.getElementById('addCardBtn');
     const addCardModal = document.getElementById('addCardModal');
     const cardForm = document.getElementById('cardForm');
@@ -8,18 +7,17 @@ document.addEventListener('DOMContentLoaded', function() {
     const slideModeBtn = document.getElementById('slideMode');
     const revisionModeBtn = document.getElementById('revisionMode');
 
-    // New header elements
     const cardCount = document.querySelector('.card-count');
     const themeToggle = document.querySelector('.theme-toggle');
     const navBtns = document.querySelectorAll('.nav-btn');
 
-    // State
+
     let cards = [];
     let currentCard = 0;
     let known = 0;
-    let currentMode = 'grid'; // 'grid', 'slide', or 'revision'
+    let currentMode = 'grid'; 
 
-    // DOM elements
+
     const questionInput = document.getElementById("questionInput");
     const answerInput = document.getElementById("answerInput");
     const cardList = document.getElementById("cardList");
@@ -33,7 +31,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const dontKnowBtn = document.getElementById("dontKnowBtn");
     const progress = document.getElementById("progress");
 
-    // Verify all elements are found
+
     console.log('Elements found:', {
         addCardBtn: !!addCardBtn,
         addCardModal: !!addCardModal,
@@ -42,7 +40,7 @@ document.addEventListener('DOMContentLoaded', function() {
         cardsGrid: !!cardsGrid
     });
 
-    // Event Listeners
+
     if (cardForm) {
         cardForm.addEventListener("submit", (e) => {
             e.preventDefault();
@@ -108,7 +106,6 @@ document.addEventListener('DOMContentLoaded', function() {
         revisionModeBtn.addEventListener('click', () => switchMode('revision'));
     }
 
-    // Card flipping state
     let isFlipped = false;
 
     function flipCard(cardElement) {
@@ -117,18 +114,14 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     function handleResponse(knewAnswer) {
-        // Reset card to front side
         if (isFlipped) {
             flipCard();
         }
         
-        // Here you can add logic to handle whether the user knew the answer or not
-        // For example, tracking statistics or moving to next card
         const message = knewAnswer ? "Great job!" : "Keep practicing!";
         console.log(message);
     }
 
-    // Start revision
     const reviseBtn = document.getElementById("reviseBtn");
     if (reviseBtn) {
         reviseBtn.addEventListener("click", () => {
@@ -147,7 +140,6 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
-    // Display current card
     function updateCard() {
         const card = cards[currentCard];
         frontDisplay.textContent = card.front;
@@ -156,7 +148,6 @@ document.addEventListener('DOMContentLoaded', function() {
         progress.textContent = `${currentCard + 1} / ${cards.length}`;
     }
 
-    // Go to next card
     function nextCard() {
         currentCard++;
         if (currentCard < cards.length) {
@@ -201,15 +192,6 @@ document.addEventListener('DOMContentLoaded', function() {
 
         setTimeout(() => {
             cardElement.remove();
-            
-            if (cards.length === 0) {
-                const existingMessages = document.querySelectorAll('.no-cards-message');
-                existingMessages.forEach(msg => msg.remove());
-                const message = document.createElement('div');
-                message.className = 'no-cards-message';
-                message.textContent = 'No cards yet! Click the + button to add some.';
-                cardsGrid.insertBefore(message, addCardBtn);
-            }
         }, 300); 
     }
 
@@ -217,10 +199,6 @@ document.addEventListener('DOMContentLoaded', function() {
         if (!cardsGrid || !addCardBtn) return;
         
         console.log('Adding new card:', { question, answer });
-        const noCardsMessage = document.querySelector('.no-cards-message');
-        if (noCardsMessage) {
-            noCardsMessage.remove();
-        }
         
         const card = {
             id: Date.now(),
@@ -319,9 +297,19 @@ document.addEventListener('DOMContentLoaded', function() {
                 icon.classList.toggle('fa-moon');
                 icon.classList.toggle('fa-sun');
             }
+            const isDarkTheme = document.body.classList.contains('dark-theme');
+            localStorage.setItem('darkTheme', isDarkTheme);
         });
+        const savedTheme = localStorage.getItem('darkTheme');
+        if (savedTheme === 'true') {
+            document.body.classList.add('dark-theme');
+            const icon = themeToggle.querySelector('i');
+            if (icon) {
+                icon.classList.remove('fa-moon');
+                icon.classList.add('fa-sun');
+            }
+        }
     }
-
 
     navBtns.forEach(btn => {
         btn.addEventListener('click', () => {

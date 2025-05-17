@@ -776,7 +776,6 @@ main {
     pointer-events: none;
 }
 
-/* Modal */
 .modal {
     display: none;
     position: fixed;
@@ -909,16 +908,6 @@ main {
     z-index: 1;
 }
 
-.no-cards-message {
-    grid-column: 1 / -1;
-    text-align: center;
-    padding: 20px;
-    color: #666;
-    font-style: italic;
-    background: rgba(255, 255, 255, 0.1);
-    border-radius: 10px;
-    margin: 20px 0;
-}
 
 .card-content {
     width: 100%;
