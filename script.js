@@ -60,6 +60,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const completionMessage = document.getElementById('completionMessage');
     const retryQuizBtn = document.getElementById('retryQuizBtn');
     const backToGridBtn = document.getElementById('backToGridBtn');
+    const floatingNextBtn = document.getElementById('floatingNextBtn');
 
     console.log('Elements found:', {
         addCardBtn: !!addCardBtn,
@@ -566,7 +567,8 @@ document.addEventListener('DOMContentLoaded', function() {
         });
 
         quizFeedback.classList.remove('active');
-        nextQuestionBtn.style.display = 'none';
+        floatingNextBtn.style.display = 'none';
+        floatingNextBtn.classList.remove('visible');
     }
 
     function handleQuizAnswer(selectedAnswer) {
@@ -599,8 +601,13 @@ document.addEventListener('DOMContentLoaded', function() {
         }
 
         quizFeedback.classList.add('active');
-        nextQuestionBtn.style.display = 'inline-flex';
         updateQuizProgress();
+
+        // Show floating next button
+        floatingNextBtn.style.display = 'flex';
+        setTimeout(() => {
+            floatingNextBtn.classList.add('visible');
+        }, 10);
     }
 
     function showQuizCompletionModal(score, total) {
@@ -648,9 +655,8 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
-    if (nextQuestionBtn) {
-        nextQuestionBtn.addEventListener('click', () => {
-            console.log('Next question clicked, current index:', currentQuizIndex);
+    if (floatingNextBtn) {
+        floatingNextBtn.addEventListener('click', () => {
             currentQuizIndex++;
             
             if (currentQuizIndex < quizQuestions.length) {
