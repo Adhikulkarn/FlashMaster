@@ -1,7 +1,4 @@
 document.addEventListener('DOMContentLoaded', function() {
-    // Clear all flashcard data from localStorage
-    localStorage.removeItem('flashcards');
-    
     const addCardBtn = document.getElementById('addCardBtn');
     const addCardModal = document.getElementById('addCardModal');
     const cardForm = document.getElementById('cardForm');
@@ -18,6 +15,62 @@ document.addEventListener('DOMContentLoaded', function() {
     let currentCard = 0;
     let known = 0;
     let currentMode = 'grid'; 
+    let currentStudyIndex = 0;
+    let studyCards = [];
+    let cardScores = new Map();
+    let persistentCardScores = {};
+    
+    // Define the functions needed for localStorage before they're used
+    function saveCardScores() {
+        localStorage.setItem('cardScores', JSON.stringify(persistentCardScores));
+    }
+    
+    function loadCardScores() {
+        const savedScores = localStorage.getItem('cardScores');
+        if (savedScores) {
+            persistentCardScores = JSON.parse(savedScores);
+            
+            // Also populate the cardScores Map with saved values
+            cardScores = new Map();
+            for (const [id, score] of Object.entries(persistentCardScores)) {
+                cardScores.set(parseInt(id), score);
+            }
+        } else {
+            persistentCardScores = {};
+            cardScores = new Map();
+        }
+    }
+    
+    function saveCardsToStorage() {
+        localStorage.setItem('flashcards', JSON.stringify(cards));
+        saveCardScores(); // Save card scores whenever cards are saved
+    }
+    
+    function loadCardsFromStorage() {
+        const savedCards = localStorage.getItem('flashcards');
+        if (savedCards) {
+            cards = JSON.parse(savedCards);
+            
+            // Remove isKnown property from all cards
+            cards.forEach(card => {
+                if (card.hasOwnProperty('isKnown')) {
+                    delete card.isKnown;
+                }
+            });
+            
+            // Save the updated cards back to localStorage without the isKnown property
+            saveCardsToStorage();
+            
+            // Clear existing cards from UI
+            const existingCards = document.querySelectorAll('.card:not(#addCardBtn)');
+            existingCards.forEach(card => card.remove());
+            
+            // Load card scores
+            loadCardScores();
+            
+            // We'll create the card elements later after all necessary functions are defined
+        }
+    }
 
     // Load saved cards from localStorage first
     loadCardsFromStorage();
@@ -56,6 +109,8 @@ document.addEventListener('DOMContentLoaded', function() {
     if (cards.length === 0) {
         loadSampleCards();
     }
+    
+        // Rest of the code will be loaded below
 
     const questionInput = document.getElementById("questionInput");
     const answerInput = document.getElementById("answerInput");
@@ -457,15 +512,15 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
 
-    let currentStudyIndex = 0;
-    let studyCards = [];
-    let cardScores = new Map();
-
     function startStudyMode() {
         cardsGrid.style.display = 'none';
         studyMode.style.display = 'block';
         studyCards = [...cards].sort(() => Math.random() - 0.5);
         currentStudyIndex = 0;
+        
+        // Load saved card scores
+        loadCardScores();
+        
         updateStudyCard();
         updateProgress();
     }
@@ -486,7 +541,35 @@ document.addEventListener('DOMContentLoaded', function() {
         prevCardBtn.disabled = currentStudyIndex === 0;
         nextCardBtn.disabled = currentStudyIndex === studyCards.length - 1;
         
+        // Show difficulty indicator if card has been rated before
+        updateDifficultyIndicator(card.id);
+        
         updateProgress();
+    }
+
+    // Add this function to show difficulty indicator
+    function updateDifficultyIndicator(cardId) {
+        const difficultyIndicator = document.getElementById('difficultyIndicator');
+        if (!difficultyIndicator) return;
+        
+        const score = persistentCardScores[cardId];
+        
+        if (score) {
+            difficultyIndicator.style.display = 'block';
+            
+            if (score === 1) {
+                difficultyIndicator.className = 'difficulty-indicator hard';
+                difficultyIndicator.textContent = 'Difficult';
+            } else if (score === 2) {
+                difficultyIndicator.className = 'difficulty-indicator medium';
+                difficultyIndicator.textContent = 'Medium';
+            } else {
+                difficultyIndicator.className = 'difficulty-indicator easy';
+                difficultyIndicator.textContent = 'Easy';
+            }
+        } else {
+            difficultyIndicator.style.display = 'none';
+        }
     }
 
     function updateProgress() {
@@ -524,6 +607,13 @@ document.addEventListener('DOMContentLoaded', function() {
         const currentCard = studyCards[currentStudyIndex];
         cardScores.set(currentCard.id, score);
         
+        // Save the score persistently
+        persistentCardScores[currentCard.id] = score;
+        saveCardScores();
+        
+        // Update the difficulty indicator
+        updateDifficultyIndicator(currentCard.id);
+        
         const btn = score === 1 ? hardBtn : score === 2 ? mediumBtn : easyBtn;
         btn.classList.add('active');
         setTimeout(() => btn.classList.remove('active'), 500);
@@ -539,8 +629,9 @@ document.addEventListener('DOMContentLoaded', function() {
                           averageScore > 1.5 ? "Good progress! Keep practicing! 💪" :
                           "Keep studying! You'll get there! 📚";
             
+            // Show a toast instead of an alert for better UX
             setTimeout(() => {
-                alert(message);
+                showToast(message, averageScore > 2.5 ? 'success' : averageScore > 1.5 ? 'info' : 'warning');
                 exitStudyMode();
             }, 500);
         }
@@ -693,6 +784,7 @@ document.addEventListener('DOMContentLoaded', function() {
         quizFeedback.classList.add('active');
         updateQuizProgress();
 
+        // Show floating next button
         floatingNextBtn.style.display = 'flex';
         setTimeout(() => {
             floatingNextBtn.classList.add('visible');
@@ -784,7 +876,7 @@ document.addEventListener('DOMContentLoaded', function() {
     if (addCardsBtn) {
         addCardsBtn.addEventListener('click', () => {
             closeNoCardsWarning();
-            openModal(); // Open the add card modal
+            openModal(); 
         });
     }
 
@@ -843,40 +935,18 @@ document.addEventListener('DOMContentLoaded', function() {
             }, 300);
         }, 3000);
     }
-
-    function saveCardsToStorage() {
-        localStorage.setItem('flashcards', JSON.stringify(cards));
-    }
-
-    function loadCardsFromStorage() {
-        const savedCards = localStorage.getItem('flashcards');
-        if (savedCards) {
-            cards = JSON.parse(savedCards);
+    
+    if (cards.length > 0 && cardsGrid && addCardBtn) {
+        cards.forEach(card => {
+            const cardElement = createCardElement(card);
+            cardsGrid.insertBefore(cardElement, addCardBtn);
             
-            cards.forEach(card => {
-                if (card.hasOwnProperty('isKnown')) {
-                    delete card.isKnown;
-                }
+            cardElement.classList.remove('card-known-status', 'card-unknown-status');
+            
+            requestAnimationFrame(() => {
+                cardElement.classList.add('card-entrance');
             });
-            
-            saveCardsToStorage();
-            
-            const existingCards = document.querySelectorAll('.card:not(#addCardBtn)');
-            existingCards.forEach(card => card.remove());
-            
-            cards.forEach(card => {
-                const cardElement = createCardElement(card);
-                if (cardsGrid && addCardBtn) {
-                    cardsGrid.insertBefore(cardElement, addCardBtn);
-                    
-                    cardElement.classList.remove('card-known-status', 'card-unknown-status');
-                    
-                    requestAnimationFrame(() => {
-                        cardElement.classList.add('card-entrance');
-                    });
-                }
-            });
-            updateCardCount();
-        }
+        });
+        updateCardCount();
     }
 });
