@@ -1,13 +1,11 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
   <meta charset="UTF-8">
   <title>FlashMaster - Smart Flashcard App</title>
   <link rel="stylesheet" href="style.css">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 </head>
-
 <body>
   <div class="background-shapes"></div>
   <header>
@@ -16,7 +14,7 @@
         <i class="fas fa-brain logo-icon"></i>
         <h1>FlashMaster</h1>
       </div>
-
+      
       <nav class="header-nav">
         <button class="nav-btn active">
           <i class="fas fa-th-large"></i>
@@ -44,8 +42,7 @@
   <main>
     <section class="about-section">
       <h2>Welcome to FlashMaster! 🧠✨</h2>
-      <p>Level up your memory game! Create cards, flip like a pro, and watch your brain power grow. Hit that "+" to
-        begin your genius journey! 🚀</p>
+      <p>Level up your memory game! Create cards, flip like a pro, and watch your brain power grow. Hit that "+" to begin your genius journey! 🚀</p>
     </section>
 
     <!-- Grid View -->
@@ -67,11 +64,10 @@
             <span id="currentCardNumber">0</span>/<span id="totalCards">0</span>
           </div>
         </div>
-
+        
         <div class="study-card" id="studyCard">
           <div class="study-card-inner">
             <div class="study-card-front">
-              <div class="difficulty-indicator" id="difficultyIndicator" style="display: none;"></div>
               <div class="study-card-content" id="questionContent"></div>
             </div>
             <div class="study-card-back">
@@ -136,6 +132,7 @@
             <i class="fas fa-arrow-right"></i>
           </button>
         </div>
+
         <div class="quiz-feedback" id="quizFeedback">
           <div class="feedback-message"></div>
           <button class="quiz-btn primary" id="nextQuestion">
@@ -208,5 +205,4 @@
 
   <script src="script.js"></script>
 </body>
-
 </html>
