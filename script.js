@@ -1,4 +1,4 @@
-document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', function () {
     const addCardBtn = document.getElementById('addCardBtn');
     const addCardModal = document.getElementById('addCardModal');
     const cardForm = document.getElementById('cardForm');
@@ -6,6 +6,8 @@ document.addEventListener('DOMContentLoaded', function() {
     const cardsGrid = document.getElementById('cardsGrid');
     const slideModeBtn = document.getElementById('slideMode');
     const revisionModeBtn = document.getElementById('revisionMode');
+    const nextQuestionBtn = document.getElementById('nextQuestion');
+
 
     const cardCount = document.querySelector('.card-count');
     const themeToggle = document.querySelector('.theme-toggle');
@@ -14,22 +16,22 @@ document.addEventListener('DOMContentLoaded', function() {
     let cards = [];
     let currentCard = 0;
     let known = 0;
-    let currentMode = 'grid'; 
+    let currentMode = 'grid';
     let currentStudyIndex = 0;
     let studyCards = [];
     let cardScores = new Map();
     let persistentCardScores = {};
-    
+
     // Define the functions needed for localStorage before they're used
     function saveCardScores() {
         localStorage.setItem('cardScores', JSON.stringify(persistentCardScores));
     }
-    
+
     function loadCardScores() {
         const savedScores = localStorage.getItem('cardScores');
         if (savedScores) {
             persistentCardScores = JSON.parse(savedScores);
-            
+
             // Also populate the cardScores Map with saved values
             cardScores = new Map();
             for (const [id, score] of Object.entries(persistentCardScores)) {
@@ -40,34 +42,34 @@ document.addEventListener('DOMContentLoaded', function() {
             cardScores = new Map();
         }
     }
-    
+
     function saveCardsToStorage() {
         localStorage.setItem('flashcards', JSON.stringify(cards));
         saveCardScores(); // Save card scores whenever cards are saved
     }
-    
+
     function loadCardsFromStorage() {
         const savedCards = localStorage.getItem('flashcards');
         if (savedCards) {
             cards = JSON.parse(savedCards);
-            
+
             // Remove isKnown property from all cards
             cards.forEach(card => {
                 if (card.hasOwnProperty('isKnown')) {
                     delete card.isKnown;
                 }
             });
-            
+
             // Save the updated cards back to localStorage without the isKnown property
             saveCardsToStorage();
-            
+
             // Clear existing cards from UI
             const existingCards = document.querySelectorAll('.card:not(#addCardBtn)');
             existingCards.forEach(card => card.remove());
-            
+
             // Load card scores
             loadCardScores();
-            
+
             // We'll create the card elements later after all necessary functions are defined
         }
     }
@@ -109,8 +111,8 @@ document.addEventListener('DOMContentLoaded', function() {
     if (cards.length === 0) {
         loadSampleCards();
     }
-    
-        // Rest of the code will be loaded below
+
+    // Rest of the code will be loaded below
 
     const questionInput = document.getElementById("questionInput");
     const answerInput = document.getElementById("answerInput");
@@ -143,7 +145,6 @@ document.addEventListener('DOMContentLoaded', function() {
     const quizQuestion = document.getElementById('quizQuestion');
     const quizOptions = document.getElementById('quizOptions');
     const quizFeedback = document.getElementById('quizFeedback');
-    const nextQuestionBtn = document.getElementById('nextQuestion');
     const quizScore = document.getElementById('quizScore');
     const quizProgress = document.getElementById('quizProgress');
     const quizProgressFill = document.getElementById('quizProgressFill');
@@ -172,14 +173,14 @@ document.addEventListener('DOMContentLoaded', function() {
         cardForm.addEventListener("submit", (e) => {
             e.preventDefault();
             console.log('Form submitted');
-            
+
             const questionInput = document.getElementById('questionInput');
             const answerInput = document.getElementById('answerInput');
-            
+
             if (questionInput && answerInput) {
                 const question = questionInput.value.trim();
                 const answer = answerInput.value.trim();
-                
+
                 if (question && answer) {
                     addNewCard(question, answer);
                     closeModal();
@@ -188,15 +189,15 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         });
     }
-    
+
     if (flashcard) {
         flashcard.addEventListener("click", flipCard);
     }
-    
+
     if (knowBtn) {
         knowBtn.addEventListener("click", () => handleResponse(true));
     }
-    
+
     if (dontKnowBtn) {
         dontKnowBtn.addEventListener("click", () => handleResponse(false));
     }
@@ -228,7 +229,7 @@ document.addEventListener('DOMContentLoaded', function() {
     if (slideModeBtn) {
         slideModeBtn.addEventListener('click', () => switchMode('slide'));
     }
-    
+
     if (revisionModeBtn) {
         revisionModeBtn.addEventListener('click', () => switchMode('revision'));
     }
@@ -244,7 +245,7 @@ document.addEventListener('DOMContentLoaded', function() {
         if (isFlipped) {
             flipCard();
         }
-        
+
         const message = knewAnswer ? "Great job!" : "Keep practicing!";
         console.log(message);
     }
@@ -315,31 +316,31 @@ document.addEventListener('DOMContentLoaded', function() {
         cardElement.classList.add('card-delete');
 
         cards = cards.filter(card => card.id !== cardId);
-        updateCardCount(); 
+        updateCardCount();
 
         setTimeout(() => {
             cardElement.remove();
-        }, 300); 
+        }, 300);
     }
 
     function addNewCard(question, answer) {
         if (!cardsGrid || !addCardBtn) return;
-        
+
         console.log('Adding new card:', { question, answer });
-        
+
         const card = {
             id: Date.now(),
             question,
             answer
         };
-        
+
         cards.push(card);
         updateCardCount();
         saveCardsToStorage(); // Save cards to localStorage
-        
+
         const cardElement = createCardElement(card);
         cardsGrid.insertBefore(cardElement, addCardBtn);
-        
+
         requestAnimationFrame(() => {
             cardElement.classList.add('card-entrance');
         });
@@ -349,7 +350,7 @@ document.addEventListener('DOMContentLoaded', function() {
         const cardDiv = document.createElement('div');
         cardDiv.className = 'card';
         cardDiv.setAttribute('data-id', card.id);
-        
+
         cardDiv.innerHTML = `
             <div class="card-inner">
                 <div class="card-front">
@@ -367,11 +368,11 @@ document.addEventListener('DOMContentLoaded', function() {
                 </div>
             </div>
         `;
-        
+
         // Main card clicking to flip
         cardDiv.addEventListener('click', (e) => {
-            if (!e.target.classList.contains('delete-btn') && 
-                !e.target.classList.contains('know-btn') && 
+            if (!e.target.classList.contains('delete-btn') &&
+                !e.target.classList.contains('know-btn') &&
                 !e.target.classList.contains('dont-know-btn')) {
                 flipCard(cardDiv);
             }
@@ -384,7 +385,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 deleteCard(card.id);
             });
         });
-        
+
         const knowBtn = cardDiv.querySelector('.know-btn');
         if (knowBtn) {
             knowBtn.addEventListener('click', (e) => {
@@ -397,13 +398,13 @@ document.addEventListener('DOMContentLoaded', function() {
                         indicator.innerHTML = '✓'; // Checkmark
                         indicator.className = 'status-indicator known';
                     }
-                    
+
                     showToast(`Great! You know "${card.question}"`, 'success');
                     setTimeout(() => currentCard.classList.remove('flipped'), 500);
                 }
             });
         }
-        
+
         const dontKnowBtn = cardDiv.querySelector('.dont-know-btn');
         if (dontKnowBtn) {
             dontKnowBtn.addEventListener('click', (e) => {
@@ -416,13 +417,13 @@ document.addEventListener('DOMContentLoaded', function() {
                         indicator.innerHTML = '✗'; // X mark
                         indicator.className = 'status-indicator unknown';
                     }
-                    
+
                     showToast(`Keep practicing "${card.question}"`, 'warning');
                     setTimeout(() => currentCard.classList.remove('flipped'), 500);
                 }
             });
         }
-        
+
         return cardDiv;
     }
 
@@ -440,9 +441,9 @@ document.addEventListener('DOMContentLoaded', function() {
             alert('Please add some cards first!');
             return;
         }
-        
+
         currentMode = mode;
-        
+
         if (mode === 'slide' || mode === 'revision') {
             alert('Mode switching will be implemented in the next version!');
         }
@@ -491,7 +492,7 @@ document.addEventListener('DOMContentLoaded', function() {
             console.log('Nav button clicked:', btn.textContent.trim());
             navBtns.forEach(b => b.classList.remove('active'));
             btn.classList.add('active');
-            
+
             if (btn.textContent.includes('Study Mode')) {
                 if (cards.length === 0) {
                     showNoCardsWarning();
@@ -517,10 +518,10 @@ document.addEventListener('DOMContentLoaded', function() {
         studyMode.style.display = 'block';
         studyCards = [...cards].sort(() => Math.random() - 0.5);
         currentStudyIndex = 0;
-        
+
         // Load saved card scores
         loadCardScores();
-        
+
         updateStudyCard();
         updateProgress();
     }
@@ -532,18 +533,18 @@ document.addEventListener('DOMContentLoaded', function() {
 
     function updateStudyCard() {
         if (studyCards.length === 0) return;
-        
+
         const card = studyCards[currentStudyIndex];
         questionContent.textContent = card.question;
         answerContent.textContent = card.answer;
         studyCard.classList.remove('flipped');
-        
+
         prevCardBtn.disabled = currentStudyIndex === 0;
         nextCardBtn.disabled = currentStudyIndex === studyCards.length - 1;
-        
+
         // Show difficulty indicator if card has been rated before
         updateDifficultyIndicator(card.id);
-        
+
         updateProgress();
     }
 
@@ -551,12 +552,12 @@ document.addEventListener('DOMContentLoaded', function() {
     function updateDifficultyIndicator(cardId) {
         const difficultyIndicator = document.getElementById('difficultyIndicator');
         if (!difficultyIndicator) return;
-        
+
         const score = persistentCardScores[cardId];
-        
+
         if (score) {
             difficultyIndicator.style.display = 'block';
-            
+
             if (score === 1) {
                 difficultyIndicator.className = 'difficulty-indicator hard';
                 difficultyIndicator.textContent = 'Difficult';
@@ -588,6 +589,9 @@ document.addEventListener('DOMContentLoaded', function() {
     if (prevCardBtn) {
         prevCardBtn.addEventListener('click', () => {
             if (currentStudyIndex > 0) {
+                // Remove any animation classes that might be active
+                const studyCardElement = document.getElementById('studyCard');
+                studyCardElement.classList.remove('slide-right', 'slide-left', 'slide-vertical');
                 currentStudyIndex--;
                 updateStudyCard();
             }
@@ -597,6 +601,9 @@ document.addEventListener('DOMContentLoaded', function() {
     if (nextCardBtn) {
         nextCardBtn.addEventListener('click', () => {
             if (currentStudyIndex < studyCards.length - 1) {
+                // Remove any animation classes that might be active
+                const studyCardElement = document.getElementById('studyCard');
+                studyCardElement.classList.remove('slide-right', 'slide-left', 'slide-vertical');
                 currentStudyIndex++;
                 updateStudyCard();
             }
@@ -606,34 +613,51 @@ document.addEventListener('DOMContentLoaded', function() {
     function handleConfidence(score) {
         const currentCard = studyCards[currentStudyIndex];
         cardScores.set(currentCard.id, score);
-        
+
         // Save the score persistently
         persistentCardScores[currentCard.id] = score;
         saveCardScores();
-        
+
         // Update the difficulty indicator
         updateDifficultyIndicator(currentCard.id);
-        
+
         const btn = score === 1 ? hardBtn : score === 2 ? mediumBtn : easyBtn;
         btn.classList.add('active');
+
+        // Add slide animation based on confidence level
+        const studyCardElement = document.getElementById('studyCard');
+        if (score === 3) {
+            // "Got It" button - slide right
+            studyCardElement.classList.add('slide-right');
+        } else if (score === 1) {
+            // "Need More Practice" button - slide left
+            studyCardElement.classList.add('slide-left');
+        } else if (score === 2) {
+            // "Almost There" button - slide down
+            studyCardElement.classList.add('slide-vertical');
+        }
+
         setTimeout(() => btn.classList.remove('active'), 500);
 
         if (currentStudyIndex < studyCards.length - 1) {
             setTimeout(() => {
+                // Remove animation classes before showing the next card
+                studyCardElement.classList.remove('slide-right', 'slide-left', 'slide-vertical');
                 currentStudyIndex++;
                 updateStudyCard();
-            }, 500);
+            }, 600); // Slightly longer than animation duration
         } else {
             const averageScore = Array.from(cardScores.values()).reduce((a, b) => a + b, 0) / cardScores.size;
             const message = averageScore > 2.5 ? "Great job! You're mastering these cards! 🎉" :
-                          averageScore > 1.5 ? "Good progress! Keep practicing! 💪" :
-                          "Keep studying! You'll get there! 📚";
-            
+                averageScore > 1.5 ? "Good progress! Keep practicing! 💪" :
+                    "Keep studying! You'll get there! 📚";
+
             // Show a toast instead of an alert for better UX
             setTimeout(() => {
+                studyCardElement.classList.remove('slide-right', 'slide-left', 'slide-vertical');
                 showToast(message, averageScore > 2.5 ? 'success' : averageScore > 1.5 ? 'info' : 'warning');
                 exitStudyMode();
-            }, 500);
+            }, 600);
         }
     }
 
@@ -688,13 +712,13 @@ document.addEventListener('DOMContentLoaded', function() {
         quizQuestions = [];
         const shuffledCards = [...cards].sort(() => Math.random() - 0.5);
         console.log('Generating quiz questions from', shuffledCards.length, 'cards');
-        
+
         for (let i = 0; i < Math.min(questionsPerQuiz, shuffledCards.length); i++) {
             const correctCard = shuffledCards[i];
             const otherCards = shuffledCards.filter(card => card.id !== correctCard.id);
-            
+
             const isQuestionToAnswer = Math.random() > 0.5;
-            
+
             const question = {
                 prompt: isQuestionToAnswer ? correctCard.question : correctCard.answer,
                 correctAnswer: isQuestionToAnswer ? correctCard.answer : correctCard.question,
@@ -705,7 +729,7 @@ document.addEventListener('DOMContentLoaded', function() {
             while (question.options.length < 4 && otherCards.length > 0) {
                 const randomIndex = Math.floor(Math.random() * otherCards.length);
                 const option = isQuestionToAnswer ? otherCards[randomIndex].answer : otherCards[randomIndex].question;
-                
+
                 if (!question.options.includes(option)) {
                     question.options.push(option);
                 }
@@ -726,13 +750,13 @@ document.addEventListener('DOMContentLoaded', function() {
 
         const question = quizQuestions[currentQuizIndex];
         console.log('Showing question', currentQuizIndex + 1, 'of', quizQuestions.length);
-        
-        const questionType = question.type === 'questionToAnswer' ? 
-            'What is the answer to this question?' : 
+
+        const questionType = question.type === 'questionToAnswer' ?
+            'What is the answer to this question?' :
             'Which question matches this answer?';
 
         quizQuestion.textContent = `${questionType}\n\n${question.prompt}`;
-        
+
         while (quizOptions.firstChild) {
             quizOptions.firstChild.remove();
         }
@@ -742,7 +766,7 @@ document.addEventListener('DOMContentLoaded', function() {
             button.className = 'quiz-option';
             button.textContent = option;
             button.dataset.index = index;
-            
+
             button.addEventListener('click', () => handleQuizAnswer(option));
             quizOptions.appendChild(button);
         });
@@ -756,16 +780,10 @@ document.addEventListener('DOMContentLoaded', function() {
         const question = quizQuestions[currentQuizIndex];
         const isCorrect = selectedAnswer === question.correctAnswer;
         const options = quizOptions.querySelectorAll('.quiz-option');
-        
-        console.log('Answer selected:', {
-            selected: selectedAnswer,
-            correct: question.correctAnswer,
-            isCorrect
-        });
 
         options.forEach(option => {
             option.classList.add('disabled');
-            
+
             if (option.textContent === question.correctAnswer) {
                 option.classList.add('correct');
             } else if (option.textContent === selectedAnswer && !isCorrect) {
@@ -781,20 +799,22 @@ document.addEventListener('DOMContentLoaded', function() {
             feedbackMessage.textContent = `❌ Incorrect. The correct answer was: ${question.correctAnswer}`;
         }
 
+        quizFeedback.style.display = 'block';
         quizFeedback.classList.add('active');
-        updateQuizProgress();
 
-        // Show floating next button
-        floatingNextBtn.style.display = 'flex';
-        setTimeout(() => {
-            floatingNextBtn.classList.add('visible');
-        }, 10);
+        const nextQuestionBtn = document.getElementById('nextQuestion');
+        if (nextQuestionBtn) {
+            nextQuestionBtn.style.display = 'block';
+            nextQuestionBtn.disabled = false;
+        }
+
+        updateQuizProgress();
     }
 
     function showQuizCompletionModal(score, total) {
         const percentage = (score / total) * 100;
         let message = '';
-        
+
         if (percentage === 100) {
             message = "🏆 Perfect score! You're a FlashMaster champion!";
         } else if (percentage >= 80) {
@@ -839,18 +859,29 @@ document.addEventListener('DOMContentLoaded', function() {
     if (floatingNextBtn) {
         floatingNextBtn.addEventListener('click', () => {
             currentQuizIndex++;
-            
+
             if (currentQuizIndex < quizQuestions.length) {
                 showQuestion();
             } else {
                 showQuizCompletionModal(score, quizQuestions.length);
             }
         });
+
+        if (quizFeedback) {
+            quizFeedback.style.display = 'none';
+            quizFeedback.classList.remove('active');
+        }
+
+        const nextQuestionBtn = document.getElementById('nextQuestion');
+        if (nextQuestionBtn) {
+            nextQuestionBtn.style.display = 'none';
+        }
+
     }
 
     function updateQuizProgress() {
         if (!quizQuestions.length) return;
-        
+
         const progress = ((currentQuizIndex + 1) / quizQuestions.length) * 100;
         quizProgressFill.style.width = `${progress}%`;
         quizScore.textContent = `Score: ${score}`;
@@ -876,7 +907,7 @@ document.addEventListener('DOMContentLoaded', function() {
     if (addCardsBtn) {
         addCardsBtn.addEventListener('click', () => {
             closeNoCardsWarning();
-            openModal(); 
+            openModal();
         });
     }
 
@@ -887,20 +918,20 @@ document.addEventListener('DOMContentLoaded', function() {
     function handleCardKnowledge(cardId, isKnown) {
         const card = cards.find(c => c.id === cardId);
         if (!card) return;
-        
-        const message = isKnown ? 
-            `Great! You know "${card.question}"` : 
+
+        const message = isKnown ?
+            `Great! You know "${card.question}"` :
             `Keep practicing "${card.question}"`;
-        
+
         const cardElement = document.querySelector(`.card[data-id="${cardId}"]`);
         if (cardElement) {
             showToast(message, isKnown ? 'success' : 'warning');
-            
+
             setTimeout(() => {
                 if (!cardElement.classList.contains('flipped')) {
                     cardElement.classList.add('flipped');
                 }
-                
+
                 setTimeout(() => {
                     cardElement.classList.remove('flipped');
                 }, 100);
@@ -915,19 +946,19 @@ document.addEventListener('DOMContentLoaded', function() {
             toastContainer.className = 'toast-container';
             document.body.appendChild(toastContainer);
         }
-        
+
         const toast = document.createElement('div');
         toast.className = `toast ${type}`;
         toast.innerHTML = `
             <div class="toast-message">${message}</div>
         `;
-        
+
         toastContainer.appendChild(toast);
-        
+
         setTimeout(() => {
             toast.classList.add('show');
         }, 10);
-        
+
         setTimeout(() => {
             toast.classList.remove('show');
             setTimeout(() => {
@@ -935,14 +966,14 @@ document.addEventListener('DOMContentLoaded', function() {
             }, 300);
         }, 3000);
     }
-    
+
     if (cards.length > 0 && cardsGrid && addCardBtn) {
         cards.forEach(card => {
             const cardElement = createCardElement(card);
             cardsGrid.insertBefore(cardElement, addCardBtn);
-            
+
             cardElement.classList.remove('card-known-status', 'card-unknown-status');
-            
+
             requestAnimationFrame(() => {
                 cardElement.classList.add('card-entrance');
             });
